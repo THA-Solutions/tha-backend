@@ -1,0 +1,196 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "prisma"
+}
+
+model User {
+  id            String         @id @default(cuid())
+  firstName     String         @db.VarChar(25)
+  lastName      String         @db.VarChar(25)
+  email         String         @unique
+  password      String         @db.VarChar(500)
+
+  role          Role          @relation(fields: [id_role], references: [id])
+  id_role       String
+
+  company       Company?      @relation(fields: [id_company], references: [id])
+  id_company    String?
+
+  review        Review[]
+
+  account_token Account_Token[]
+
+  image         Image?         @relation(fields: [id_image], references: [id])
+  id_image      String?
+
+  @@map("user")
+}
+
+model Team {
+  id            String        @id @default(cuid())
+  name          String        @db.VarChar(100)
+  
+  order         Int?          @default(0)
+  linkedin      String?       @db.VarChar(500)
+  instagram     String?       @db.VarChar(500)
+  description   String?       @db.VarChar(500)
+
+  role          String
+
+  image         Image         @relation(fields: [id_image], references: [id])
+  id_image      String
+
+  @@map("team")
+}
+
+model Role {
+  id            String        @id @default(cuid())
+  name          String        @unique
+
+  user          User[]
+
+  @@map("role")
+}
+
+model Account_Token {
+  id            String        @id @default(cuid())
+
+  token         String        @db.VarChar(100)
+  expires       DateTime      @default(now()) @db.Timestamp(0)
+
+  user          User          @relation(fields: [id_user], references: [id])
+  id_user       String
+
+  @@map("account_token")
+}
+
+model Article {
+  id            String        @id @default(cuid())
+  title         String        @db.VarChar(255)
+  subTitle      String        @db.VarChar(500)
+  content       String        @db.Text
+  pubDate       DateTime      @default(now()) @db.Timestamp(0)
+  author        String        @db.VarChar(50)
+
+  image         Image         @relation(fields: [id_image], references: [id])
+  id_image      String[]
+
+  category      category      @relation(fields: [id_category], references: [id])
+  id_category   String
+
+  @@map("article")
+}
+
+model category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  description   String?       @db.VarChar(500)
+
+  article       Article[]
+
+  @@map("category")
+
+}
+
+model Company {
+  id            String        @id @default(cuid())
+  trade_name    String?       @db.VarChar(100)
+  legal_name    String        @db.VarChar(100)
+  description   String?       @db.VarChar(500)
+  cnpj          String        @db.VarChar(18)
+  street        String        @db.VarChar(100)
+  number        String        @db.VarChar(10)
+  complement    String?       @db.VarChar(100)
+  neighborhood  String        @db.VarChar(100)
+  city          String        @db.VarChar(100)
+  state         String        @db.VarChar(2)
+  cep           String        @db.VarChar(10)
+
+  inverters     Inverter[]
+
+  user          User[]
+  @@map("company")
+}
+
+model Inverter {
+  id                                    String   @id @default(cuid())
+  title                                 String   @db.VarChar(100)
+  cc_voltage                            String   @db.VarChar(100)
+  mppt_voltage_range                    String   @db.VarChar(100)
+  max_input_current                     String   @db.VarChar(100)
+  max_short_circuit_current_per_tracker String   @db.VarChar(100)
+  num_mppt                              Int
+  max_output_current                    String   @db.VarChar(100)
+  ca_nominal_power_range                String   @db.VarChar(100)
+  adjustable_power_factor               String   @db.VarChar(100)
+  thdi                                  String   @db.VarChar(100)
+  max_efficiency                        String   @db.VarChar(100)
+  european_efficiency                   String   @db.VarChar(100)
+  mppt_efficiency                       String   @db.VarChar(100)
+  cc_reverse_polarity_protection        String   @db.VarChar(100)
+  cc_switch                             String   @db.VarChar(100)
+  cc_surge_protection                   String   @db.VarChar(100)
+  output_overcurrent_protection         String   @db.VarChar(100)
+  ac_overvoltage_protection             String   @db.VarChar(100)
+  ground_fault_monitoring               String   @db.VarChar(100)
+  dimensions                            String   @db.VarChar(100)
+  weight                                String   @db.VarChar(100)
+  operating_temperature_range           String   @db.VarChar(100)
+  nighttime_power_consumption           String   @db.VarChar(100)
+  cooling                               String   @db.VarChar(100)
+  protection_degree                     String   @db.VarChar(100)
+  warranty                              String   @db.VarChar(100)
+  network_monitoring                    String?  @db.VarChar(100)
+  
+  company                               Company? @relation(fields: [id_company], references: [id], onDelete: Cascade)
+  id_company                            String
+
+  image         Image         @relation(fields: [id_image], references: [id])
+  id_image      String
+
+  review                                Review[]
+
+  @@index([id_company], map: "inverter_FK")
+  @@map("inverter")
+}
+
+model Review {
+  id            String        @id @default(cuid())
+  value         Int?
+  comment       String?       @db.VarChar(500)
+  
+  date          DateTime      @default(now()) @db.Timestamp(0)
+
+  inverter      Inverter      @relation(fields: [id_inverter], references: [id])
+  id_inverter   String
+
+  user          User          @relation(fields: [id_user], references: [id])
+  id_user       String
+
+  @@map("review")
+}
+
+model Image {
+  id            String        @id @default(cuid())
+  url           String        @unique @db.VarChar(500)
+  alt           String?       @db.VarChar(500)
+  source        String?       @db.VarChar(500)
+  pos           Int?          @default(0)
+
+  User          User[]
+
+  Team          Team[]
+
+  Inverter      Inverter[]
+
+  Article       Article[]
+  @@map("image")
+}
+
