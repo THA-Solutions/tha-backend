@@ -3,6 +3,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { MailService } from './mail.use-case';
 import { MailFactoryService } from './mail-factory.service';
 import { PrismaModule } from 'src/frameworks/data-services/database/prisma.module';
+import { MailController } from 'src/controllers/mail.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { PrismaModule } from 'src/frameworks/data-services/database/prisma.modul
     }),
     PrismaModule,
   ],
-  controllers: [],
+  controllers: [MailController],
   providers: [MailService, MailFactoryService],
   exports: [MailService, MailFactoryService],
 })

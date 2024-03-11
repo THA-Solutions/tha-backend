@@ -1,30 +1,41 @@
 import { IGenericRepository } from 'src/core/abstracts';
-import { User } from 'src/core/entities';
+import { Role, User } from 'src/core/entities';
 import PrismaService from './prisma.service';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserRepository implements IGenericRepository<User> {
   constructor(private prisma: PrismaService) {}
 
   async create(data: User): Promise<User> {
-    return await this.prisma.user.create({
-      data: {
-        ...data,
-        role: {
-          connect: { id: data.role.id },
-        },
-      } as any,
-    });
+    let createData: Prisma.UserCreateInput = {
+      ...data,
+      password: data.password!,
+      role: data.role ? { connect: { id: data.role.id } } : undefined,
+      company: data.company ? { connect: { id: data.company.id } } : undefined,
+      image: data.image ? { connect: { id: data.image.id } } : undefined,
+    } as any;
+
+    const user = await this.prisma.user.create({ data: createData } as any);
+    return user;
   }
 
   async update(id: string, data: User): Promise<User> {
-    return await this.prisma.user.update({
+    const updateData: Prisma.UserUncheckedUpdateInput = {
+      ...data,
+      password: data.password ? data.password : undefined,
+      role: data.role ? { connect: { id: data.role.id } } : undefined,
+      company: data.company ? { connect: { id: data.company.id } } : undefined,
+      image: data.image ? { connect: { id: data.image.id } } : undefined,
+    } as any;
+
+    const user = await this.prisma.user.update({
       where: { id },
-      data: {
-        ...data,
-      },
+      data: updateData,
     } as any);
+
+    return user;
   }
 
   async find(id: string): Promise<User> {
@@ -32,6 +43,12 @@ export class UserRepository implements IGenericRepository<User> {
       where: { id },
       include: {
         image: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }
@@ -54,12 +71,46 @@ export class UserRepository implements IGenericRepository<User> {
       where: { [param]: value },
       include: {
         image: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
   }
 
+  async findByRole(role: string): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: { role: { id: role } },
+      include: {
+        image: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return users;
+  }
+
   async findById(id: string): Promise<User> {
-    return await this.prisma.user.findUnique({ where: { id } });
+    return await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        image: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
   }
 
   async delete(id: string) {

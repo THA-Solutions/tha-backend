@@ -8,16 +8,21 @@ export class TeamRepository implements IGenericRepository<Team> {
   constructor(private prismaService: PrismaService) {}
 
   async create(data: Team): Promise<Team> {
-    return (await this.prismaService.team.create({
-      data,
-    } as any)) as unknown as Team;
+    const createOptions = data.image
+      ? { data: { ...data, image: { connect: { id: data.image.id } } } }
+      : { data };
+
+    return (await this.prismaService.team.create(
+      createOptions as any,
+    )) as unknown as Team;
   }
 
   async update(id: string, data: Team): Promise<Team> {
-    return (await this.prismaService.team.update({
-      where: { id },
-      data,
-    } as any)) as unknown as Team;
+
+    const updateOptions = data.image ? { where: {id},data: { ...data, image: { connect:{ id: data.image.id }} } } : { data }; 
+    return (await this.prismaService.team.update(
+      updateOptions as any,
+    )) as unknown as Team;
   }
 
   async delete(id: string) {
@@ -61,6 +66,9 @@ export class TeamRepository implements IGenericRepository<Team> {
   async findById(id: string): Promise<Team> {
     return (await this.prismaService.team.findUnique({
       where: { id },
+      include: {
+        image: true,
+      },
     })) as unknown as Team;
   }
 }

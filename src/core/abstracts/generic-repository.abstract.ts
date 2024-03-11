@@ -12,6 +12,5 @@ export abstract class IGenericRepository<T> {
   abstract findByField(
     param: string,
     value: string | number | boolean,
-    relations?: string[],
   ): Promise<T>;
 }

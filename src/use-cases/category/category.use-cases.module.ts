@@ -4,10 +4,11 @@ import { PrismaModule } from 'src/frameworks/data-services/database/prisma.modul
 import { CategoryService } from './category.use-case';
 import { CategoryFactoryService } from './category-factory.service';
 import { CategoryRepository } from 'src/frameworks/data-services/database';
+import { CategoryController } from 'src/controllers/category.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [],
+  controllers: [CategoryController],
   providers: [CategoryService, CategoryFactoryService, CategoryRepository],
   exports: [CategoryService, CategoryFactoryService],
 })

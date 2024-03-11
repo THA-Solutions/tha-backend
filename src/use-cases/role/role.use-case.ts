@@ -11,9 +11,6 @@ export class RoleService {
   ) {}
 
   async create(createRoleDto: CreateRoleDto) {
-    if (await this.roleService.findByField('name', createRoleDto.name)) {
-      throw new Error('Role already exists');
-    }
     const role = await this.roleFactoryService.createNewRole(createRoleDto);
 
     return this.roleService.create(role);
@@ -33,7 +30,6 @@ export class RoleService {
     if (!role) {
       throw new Error('Role doesn´t exists');
     }
-
     const updateRole = await this.roleFactoryService.updateRole(updateRoleDto);
 
     return await this.roleService.update(id, updateRole);

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { Role } from './enums';
+import { RoleRepository } from 'src/frameworks/data-services/database';
 
 interface IsAuthorizedParams {
   currentRole: Role;
@@ -11,14 +12,14 @@ interface IsAuthorizedParams {
 export class RoleService {
   private hierarchy: Map<Role, number> = new Map();
 
-  constructor() {
+  constructor(private roleRepository: RoleRepository) {
     this.buildRoles([
       Role.GUEST,
       Role.USER,
       Role.CUSTOMER,
       Role.SUPPLIER,
       Role.INTEGRATOR,
-      Role.ADMIN
+      Role.ADMIN,
     ]);
   }
 
@@ -37,5 +38,10 @@ export class RoleService {
       priorityRequiredRole !== undefined &&
       priorityCurrentRole >= priorityRequiredRole
     );
+  }
+
+  async findById(id: string) {
+    const role = await this.roleRepository.findById(id);
+    return role;
   }
 }

@@ -14,6 +14,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/config/decorators/public.decorator';
 import { Roles } from 'src/config/decorators/role.decorator';
 import { CreateArticleDto, UpdateArticleDto } from 'src/core/dto';
+import { Image } from 'src/core/entities';
 import { ArticleService } from 'src/use-cases/article/article.use-case';
 import { Role } from 'src/use-cases/auth/enums';
 
@@ -26,13 +27,22 @@ export class ArticleController {
   @UseInterceptors(FilesInterceptor('imageFile'))
   create(
     @Body() createArticleDto: CreateArticleDto,
-    @UploadedFiles() imageFile?: Express.Multer.File[],
+    @UploadedFiles() imageFile?: Image[],
   ) {
-    return this.articleService.create(createArticleDto, imageFile);
+    const images = imageFile
+      ? imageFile.map((image) => ({
+          ...JSON.parse(createArticleDto.image as unknown as string),
+          imageFile: image as File,
+        }))
+      : null;
+
+    return this.articleService.create({
+      ...createArticleDto,
+      image: images,
+    });
   }
 
   @Get()
-  @Public()
   findAll() {
     return this.articleService.findAll();
   }
@@ -46,8 +56,21 @@ export class ArticleController {
   @Roles(Role.ADMIN, Role.SUPPLIER)
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('imageFile'))
-  update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articleService.update(id, updateArticleDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateArticleDto: UpdateArticleDto,
+    @UploadedFiles() imageFile?: Image[],
+  ) {
+    const images = updateArticleDto.image
+      ? updateArticleDto.image.map((img) => {
+          return JSON.parse(img as any) as Image;
+        })
+      : null;
+
+    return this.articleService.update(id, {
+      ...updateArticleDto,
+      image: images,
+    });
   }
 
   @Delete(':id')

@@ -1,7 +1,8 @@
-import { Image } from 'src/core/entities';
+import { Company, Image } from 'src/core/entities';
 
 export class CreateInverterDto {
   id_company: string;
+  company: Company;
 
   title: string;
 
@@ -60,4 +61,6 @@ export class CreateInverterDto {
   image?: Image;
 }
 
-export class UpdateInverterDto extends CreateInverterDto {}
+export class UpdateInverterDto extends CreateInverterDto {
+  id?: string;
+}

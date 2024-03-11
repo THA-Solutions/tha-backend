@@ -13,6 +13,7 @@ import { RoleService } from '../use-cases/role/role.use-case';
 
 import { Role } from '../use-cases/auth/enums';
 import { Roles } from 'src/config/decorators/role.decorator';
+import { Public } from 'src/config/decorators/public.decorator';
 
 @Controller('role')
 export class RoleController {
@@ -20,14 +21,18 @@ export class RoleController {
 
   @Post()
   @Roles(Role.ADMIN)
+  @Public()
   async create(@Body() createRoleDto: CreateRoleDto) {
     try {
       return await this.roleService.create(createRoleDto);
-    } catch (error) {}
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   @Get()
   @Roles(Role.ADMIN)
+  @Public()
   findAll() {
     return this.roleService.findAll();
   }

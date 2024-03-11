@@ -7,5 +7,9 @@ export class Image {
 
   alt?: string;
 
-  url: string;
+  url?: string;
+
+  pos?: number;
+
+  id_article?: string;
 }

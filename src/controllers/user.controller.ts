@@ -59,6 +59,16 @@ export class UserController {
     }
   }
 
+  @Get('/role/:role')
+  @Roles(Role.ADMIN)
+  findByRole(@Param('role') role: string) {
+    try {
+      return this.userService.findByRole(role);
+    } catch (error) {
+      throw Error(`Error in find customers ${error}`);
+    }
+  }
+
   @Get(':id')
   @Public()
   findOne(@Param('id') id: string) {
@@ -66,16 +76,6 @@ export class UserController {
       return this.userService.findOne(id);
     } catch (error) {
       throw Error(`Error in find user by id ${error}`);
-    }
-  }
-
-  @Get('role/:role')
-  @Roles(Role.ADMIN)
-  findByRole(@Param('role') role: string) {
-    try {
-      return this.userService.findByField('role', role);
-    } catch (error) {
-      throw Error(`Error in find user by role ${error}`);
     }
   }
 

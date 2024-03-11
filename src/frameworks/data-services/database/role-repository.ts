@@ -3,6 +3,7 @@ import { Role } from 'src/core/entities';
 import PrismaService from './prisma.service';
 import { Injectable } from '@nestjs/common';
 
+const ApiRoles = ['user', 'customer', 'integrator', 'distributor'];
 @Injectable()
 export class RoleRepository implements IGenericRepository<Role> {
   constructor(private prismaService: PrismaService) {}
@@ -31,12 +32,28 @@ export class RoleRepository implements IGenericRepository<Role> {
     param: string,
     value: string | number | boolean,
   ): Promise<Role> {
-    return await this.prismaService.role.findFirst({
+    const role = await this.prismaService.role.findFirst({
       where: { [param]: value },
     });
+
+    const allRoles = await this.findAll().then((roles) => {
+      return roles.map((role) => role.name);
+    });
+
+    if (allRoles.includes(value.toString().toLowerCase())) {
+      return role;
+    }
+
+    if (ApiRoles.includes(value.toString().toLowerCase())) {
+      return await this.prismaService.role.create({
+        data: { name: value.toString().toLowerCase() },
+      });
+    }
+
+    return role;
   }
 
   async findById(id: string): Promise<Role> {
-    return await this.prismaService.role.findUnique({ where: { id } });
+    return await this.prismaService.role.findFirst({ where: { id } });
   }
 }

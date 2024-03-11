@@ -2,21 +2,40 @@ import { IGenericRepository } from 'src/core/abstracts';
 import { Inverter } from 'src/core/entities';
 import PrismaService from './prisma.service';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class InverterRepository implements IGenericRepository<Inverter> {
   constructor(private prismaService: PrismaService) {}
 
   async create(data: Inverter): Promise<Inverter> {
+    const createData = {
+      ...data,
+      company: data.company ? { connect: { id: data.company.id } } : undefined,
+      image: data.image ? { connect: { id: data.image.id } } : undefined,
+    };
+
     return (await this.prismaService.inverter.create({
-      data,
+      data: createData,
     } as any)) as Inverter;
   }
 
   async update(id: string, data: Inverter): Promise<Inverter> {
+    let updateData = {
+      ...data,
+    } as any;
+
+    if (data.company) {
+      updateData.company = { connect: { id: data.company.id } };
+    }
+
+    if (data.image) {
+      updateData.image = { connect: { id: data.image.id } };
+    }
+
     return (await this.prismaService.inverter.update({
       where: { id },
-      data,
+      data: updateData,
     } as any)) as Inverter;
   }
 

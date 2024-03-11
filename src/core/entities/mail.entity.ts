@@ -4,7 +4,7 @@ export class Mail {
 
   email: string;
 
-  compamny?: string;
+  company?: string;
 
   message?: string;
 

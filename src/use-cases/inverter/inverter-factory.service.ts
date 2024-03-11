@@ -1,16 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateInverterDto, UpdateInverterDto } from 'src/core/dto';
-import { Inverter } from 'src/core/entities';
-import { InverterRepository } from 'src/frameworks/data-services/database';
+import { Image, Inverter } from 'src/core/entities';
+import {
+  CompanyRepository,
+  InverterRepository,
+} from 'src/frameworks/data-services/database';
+import { ImageService } from '../image/image.use-case';
 
 @Injectable()
 export class InverterFactoryService {
-  constructor(private inverterService: InverterRepository) {}
+  constructor(
+    private inverterService: InverterRepository,
+    private companyService: CompanyRepository,
+    private imageUseCase: ImageService,
+  ) {}
 
   async createNewInverter(createInverterDto: CreateInverterDto) {
     const newInverter = new Inverter();
 
-    newInverter.id_company = await this.companyHandler(
+    newInverter.company = await this.companyHandler(
       createInverterDto.id_company,
     );
 
@@ -40,7 +48,7 @@ export class InverterFactoryService {
     newInverter.network_monitoring = createInverterDto.network_monitoring;
     newInverter.nighttime_power_consumption =
       createInverterDto.nighttime_power_consumption;
-    newInverter.num_mppt = createInverterDto.num_mppt;
+    newInverter.num_mppt = +createInverterDto.num_mppt;
     newInverter.operating_temperature_range =
       createInverterDto.operating_temperature_range;
     newInverter.output_overcurrent_protection =
@@ -51,11 +59,18 @@ export class InverterFactoryService {
     newInverter.warranty = createInverterDto.warranty;
     newInverter.weight = createInverterDto.weight;
 
+    if (createInverterDto.image) {
+      newInverter.image = await this.imageHandler(createInverterDto.image);
+    }
+
     return newInverter;
   }
 
   async updateInverter(updateInverterDto: UpdateInverterDto) {
     const updatedInverter = new Inverter();
+
+    let inverter = await this.inverterService.findById(updateInverterDto.id);
+
     if (updateInverterDto.ac_overvoltage_protection) {
       updatedInverter.ac_overvoltage_protection =
         updateInverterDto.ac_overvoltage_protection;
@@ -123,7 +138,7 @@ export class InverterFactoryService {
         updateInverterDto.nighttime_power_consumption;
     }
     if (updateInverterDto.num_mppt) {
-      updatedInverter.num_mppt = updateInverterDto.num_mppt;
+      updatedInverter.num_mppt = +updateInverterDto.num_mppt;
     }
     if (updateInverterDto.operating_temperature_range) {
       updatedInverter.operating_temperature_range =
@@ -150,20 +165,43 @@ export class InverterFactoryService {
     }
 
     if (updateInverterDto.id_company) {
-      updatedInverter.id_company = await this.companyHandler(
+      updatedInverter.company = await this.companyHandler(
         updateInverterDto.id_company,
       );
+    }
+
+    if (updateInverterDto.image) {
+      if (!inverter.image) {
+        updatedInverter.image = await this.imageHandler(
+          updateInverterDto.image,
+        );
+      } else {
+        this.imageUseCase.remove(inverter.image.id);
+        updatedInverter.image = await this.imageHandler(
+          updateInverterDto.image,
+        );
+      }
     }
 
     return updatedInverter;
   }
 
   private async companyHandler(companyId: string) {
-    return await this.inverterService.findById(companyId).then((company) => {
+    return await this.companyService.findById(companyId).then((company) => {
       if (!company) {
         throw new Error('Company doesn´t exists');
       }
-      return company.id;
+      return company;
     });
+  }
+
+  private async imageHandler(imageFile: Image): Promise<Image> {
+    let postedImage = new Image();
+
+    postedImage = await this.imageUseCase.create({
+      imageFile: imageFile as unknown as File,
+    });
+
+    return postedImage;
   }
 }

@@ -17,6 +17,6 @@ export class Article {
   category?: Category;
   id_category?: string;
 
-  image?: Image;
+  image?: Image[];
   id_image?: string;
 }

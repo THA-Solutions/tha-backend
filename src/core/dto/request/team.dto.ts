@@ -17,4 +17,6 @@ export class CreateTeamDto {
   id_image: string;
 }
 
-export class UpdateTeamDto extends CreateTeamDto {}
+export class UpdateTeamDto extends CreateTeamDto {
+  id?: string;
+}

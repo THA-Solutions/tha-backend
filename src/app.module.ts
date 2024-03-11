@@ -15,6 +15,9 @@ import { UserUseCasesModule } from './use-cases/user/user.use-cases.module';
 import { ConfigModule } from '@nestjs/config';
 import PrismaService from './frameworks/data-services/database/prisma.service';
 import { PrismaModule } from './frameworks/data-services/database/prisma.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RoleGuard } from './use-cases/auth/role.guard';
+import { MailUseCasesModule } from './use-cases/mail/mail.use-cases.module';
 
 @Module({
   imports: [
@@ -29,10 +32,19 @@ import { PrismaModule } from './frameworks/data-services/database/prisma.module'
     RoleUseCasesModule,
     TeamUseCasesModule,
     UserUseCasesModule,
+    MailUseCasesModule,
     PrismaModule,
     ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, ConfigModule],
+  providers: [
+    AppService,
+    PrismaService,
+    ConfigModule,
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard,
+    },
+  ],
 })
 export class AppModule {}

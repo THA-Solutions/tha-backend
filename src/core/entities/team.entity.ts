@@ -15,8 +15,7 @@ export class Team {
 
   description: string;
 
-  role: Role;
-  id_role?: string;
+  role: string;
 
   image: Image;
   id_image?: string;

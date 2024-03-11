@@ -3,10 +3,14 @@ import { CreateTeamDto, UpdateTeamDto } from 'src/core/dto';
 import { Image, Team } from 'src/core/entities';
 import { ImageService } from '../image/image.use-case';
 import { IDataServices } from 'src/core/abstracts';
+import { TeamRepository } from 'src/frameworks/data-services/database';
 
 @Injectable()
 export class TeamFactoryService {
-  constructor(private imageUseCase: ImageService) {}
+  constructor(
+    private imageUseCase: ImageService,
+    private teamService: TeamRepository,
+  ) {}
 
   async createNewTeam(createTeamDto: CreateTeamDto) {
     const newTeam = new Team();
@@ -21,7 +25,7 @@ export class TeamFactoryService {
 
     newTeam.linkedin = createTeamDto.linkedin;
 
-    newTeam.id_role = createTeamDto.role;
+    newTeam.role = createTeamDto.role;
 
     if (createTeamDto.image) {
       newTeam.image = await this.imageHandler(createTeamDto.image);
@@ -32,6 +36,8 @@ export class TeamFactoryService {
 
   async updateTeam(updateTeamDto: UpdateTeamDto) {
     const updatedTeam = new Team();
+
+    const team = await this.teamService.findById(updateTeamDto.id);
 
     if (updateTeamDto.name) {
       updatedTeam.name = updateTeamDto.name;
@@ -54,10 +60,15 @@ export class TeamFactoryService {
     }
 
     if (updateTeamDto.role) {
-      updatedTeam.id_role = updateTeamDto.role;
+      updatedTeam.role = updateTeamDto.role;
     }
 
     if (updateTeamDto.image) {
+      if (!team.image) {
+        updatedTeam.image = await this.imageHandler(updateTeamDto.image);
+      }
+
+      await this.imageUseCase.remove(team.image.id);
       updatedTeam.image = await this.imageHandler(updateTeamDto.image);
     }
 

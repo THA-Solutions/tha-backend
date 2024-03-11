@@ -26,4 +26,6 @@ export class CreateCompanyDto {
   image?: Image;
 }
 
-export class UpdateCompanyDto extends CreateCompanyDto {}
+export class UpdateCompanyDto extends CreateCompanyDto {
+  id?: string;
+}

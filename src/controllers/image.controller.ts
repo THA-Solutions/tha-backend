@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateImageDto, UpdateImageDto } from 'src/core/dto';
-import { Image } from 'src/core/entities';
 import { ImageService } from 'src/use-cases/image/image.use-case';
 
 @Controller('image')
@@ -67,8 +66,4 @@ export class ImageController {
     return this.imageService.remove(id);
   }
 
-  @Delete('offset/:id')
-  removeOffset(@Param('id') id: string, @Body() imageSet: UpdateImageDto[]) {
-    return; // this.imageService.deleteOffSet(id, imageSet);
-  }
 }

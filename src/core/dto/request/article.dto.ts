@@ -13,7 +13,7 @@ export class CreateArticleDto {
 
   category: Category;
 
-  image: Image;
+  image: Image[];
 }
 
 export class UpdateArticleDto extends CreateArticleDto {}

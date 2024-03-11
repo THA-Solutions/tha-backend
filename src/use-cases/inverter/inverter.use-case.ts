@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InverterFactoryService } from './inverter-factory.service';
 import { CreateInverterDto, UpdateInverterDto } from 'src/core/dto';
-import { InverterRepository } from 'src/frameworks/data-services/database';
+import {
+  ImageRepository,
+  InverterRepository,
+} from 'src/frameworks/data-services/database';
 
 @Injectable()
 export class InverterService {
   constructor(
     private inverterFactoryService: InverterFactoryService,
     private inverterService: InverterRepository,
+    private imageService: ImageRepository,
   ) {}
 
   async create(createInverterDto: CreateInverterDto) {
@@ -30,13 +34,21 @@ export class InverterService {
   }
 
   async update(id: string, updateInverterDto: UpdateInverterDto) {
-    const inverter =
-      await this.inverterFactoryService.updateInverter(updateInverterDto);
+    const inverter = await this.inverterFactoryService.updateInverter({
+      id,
+      ...updateInverterDto,
+    });
 
     return this.inverterService.update(id, inverter);
   }
 
   async remove(id: string) {
+    const inverter = await this.findOne(id);
+
+    if (inverter.image) {
+      this.imageService.delete(inverter.image.id);
+    }
+
     return this.inverterService.delete(id);
   }
 }

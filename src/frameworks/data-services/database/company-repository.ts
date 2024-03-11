@@ -8,16 +8,26 @@ export class CompanyRepository implements IGenericRepository<Company> {
   constructor(private prismaService: PrismaService) {}
 
   async create(data: Company): Promise<Company> {
-    return (await this.prismaService.company.create({
-      data,
-    } as any)) as Company;
+    const createOptions = data.image
+      ? { data: { ...data, image: { connect: { id: data.image.id } } } }
+      : { data };
+
+    return (await this.prismaService.company.create(
+      createOptions as any,
+    )) as Company;
   }
 
   async update(id: string, data: Company): Promise<Company> {
-    return (await this.prismaService.company.update({
-      where: { id },
-      data,
-    } as any)) as Company;
+    const updateOptions = data.image
+      ? {
+          where: { id },
+          data: { ...data, image: { connect: { id: data.image.id } } },
+        }
+      : { where: { id }, data };
+
+    return (await this.prismaService.company.update(
+      updateOptions as any,
+    )) as Company;
   }
 
   async delete(id: string) {
@@ -27,11 +37,18 @@ export class CompanyRepository implements IGenericRepository<Company> {
   async find(id: string): Promise<Company> {
     return (await this.prismaService.company.findUnique({
       where: { id },
+      include:{
+        image: true
+      },
     })) as Company;
   }
 
   async findAll(): Promise<Company[]> {
-    return (await this.prismaService.company.findMany()) as Company[];
+    return (await this.prismaService.company.findMany({
+      include: {
+        image: true,
+      },
+    })) as Company[];
   }
 
   async findByField(

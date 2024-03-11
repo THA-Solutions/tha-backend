@@ -15,10 +15,10 @@ model User {
   firstName     String         @db.VarChar(25)
   lastName      String         @db.VarChar(25)
   email         String         @unique
-  password      String         @db.VarChar(500)
+  password      String?         @db.VarChar(500)
 
-  role          Role          @relation(fields: [id_role], references: [id])
-  id_role       String
+  role          Role?          @relation(fields: [id_role], references: [id])
+  id_role       String?
 
   company       Company?      @relation(fields: [id_company], references: [id])
   id_company    String?
@@ -44,8 +44,8 @@ model Team {
 
   role          String
 
-  image         Image         @relation(fields: [id_image], references: [id])
-  id_image      String
+  image         Image?         @relation(fields: [id_image], references: [id])
+  id_image      String?
 
   @@map("team")
 }
@@ -79,8 +79,7 @@ model Article {
   pubDate       DateTime      @default(now()) @db.Timestamp(0)
   author        String        @db.VarChar(50)
 
-  image         Image         @relation(fields: [id_image], references: [id])
-  id_image      String[]
+  image         Image[]
 
   category      category      @relation(fields: [id_category], references: [id])
   id_category   String
@@ -114,6 +113,9 @@ model Company {
   cep           String        @db.VarChar(10)
 
   inverters     Inverter[]
+
+  image         Image?        @relation(fields: [id_image], references: [id])
+  id_image      String?
 
   user          User[]
   @@map("company")
@@ -150,10 +152,10 @@ model Inverter {
   network_monitoring                    String?  @db.VarChar(100)
   
   company                               Company? @relation(fields: [id_company], references: [id], onDelete: Cascade)
-  id_company                            String
+  id_company                            String?
 
-  image         Image         @relation(fields: [id_image], references: [id])
-  id_image      String
+  image         Image?         @relation(fields: [id_image], references: [id])
+  id_image      String?
 
   review                                Review[]
 
@@ -190,7 +192,10 @@ model Image {
 
   Inverter      Inverter[]
 
-  Article       Article[]
+  Company       Company[]
+  
+  article       Article?         @relation(fields: [id_article], references: [id])
+  id_article    String?    
   @@map("image")
 }
 

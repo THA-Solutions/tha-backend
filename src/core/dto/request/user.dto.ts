@@ -9,6 +9,7 @@ export class CreateUserDto {
 
   password: string;
 
+  role?: string;
   id_role: string;
 
   id_company?: string;
@@ -17,4 +18,6 @@ export class CreateUserDto {
   id_image?: string;
 }
 
-export class UpdateUserDto extends CreateUserDto {}
+export class UpdateUserDto extends CreateUserDto {
+  id?: string;
+}

@@ -21,7 +21,7 @@ export class MailService {
       subject: mail.subject,
       html: mail.message,
     };
-
+    
     await this.mailer.sendMail(options);
     return;
   }
@@ -31,7 +31,7 @@ export class MailService {
 
     const options = {
       to: mail.email,
-      from: process.env.TARGET_MAIL,
+      from: `THA Solutions [Suporte]<${process.env.MAIL_USER}>`,
       subject: mail.subject,
       html: mail.message,
     };

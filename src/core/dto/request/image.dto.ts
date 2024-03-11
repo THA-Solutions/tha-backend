@@ -5,9 +5,11 @@ export class CreateImageDto {
 
   alt?: string;
 
-  order?: number;
+  pos?: number;
 
   url?: string;
+
+  id_article?: string;
 }
 
 export class UpdateImageDto extends CreateImageDto {}

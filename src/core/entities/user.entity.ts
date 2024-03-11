@@ -5,16 +5,16 @@ import { Role } from './role.entity';
 export class User {
   id?: string;
 
-  firstName: string;
+  firstName?: string;
 
-  lastName: string;
+  lastName?: string;
 
-  email: string;
+  email?: string;
 
-  password?: string;
+  password: string;
 
   role?: Role;
-  id_role: string;
+  id_role?: string;
 
   company?: Company;
   id_company?: string;

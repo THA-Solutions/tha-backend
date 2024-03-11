@@ -4,7 +4,7 @@ export class InviteMailDto {
 
   email: string;
 
-  compamny?: string;
+  company?: string;
 
   message?: string;
 

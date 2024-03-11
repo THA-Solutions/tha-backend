@@ -12,10 +12,7 @@ export class CategoryService {
   ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     if (
-      await this.CategoryService.findByField(
-        'display_name',
-        createCategoryDto.name,
-      )
+      await this.CategoryService.findByField('name', createCategoryDto.name)
     ) {
       throw new Error('Category already exists');
     }

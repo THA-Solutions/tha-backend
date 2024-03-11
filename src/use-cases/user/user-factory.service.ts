@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { IDataServices, IGenericRepository } from 'src/core/abstracts';
 import { CreateUserDto, UpdateUserDto } from 'src/core/dto';
-import { Company, Image, Role, User } from 'src/core/entities';
+import { Image, User } from 'src/core/entities';
 import { HashService } from '../auth/hash-repository';
 import { ImageService } from '../image/image.use-case';
 import {
+  AccountTokenRepository,
   CompanyRepository,
-  InverterRepository,
   RoleRepository,
   UserRepository,
 } from 'src/frameworks/data-services/database';
 import PrismaService from 'src/frameworks/data-services/database/prisma.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UserFactoryService {
@@ -19,6 +19,7 @@ export class UserFactoryService {
     private userService: UserRepository,
     private companyService: CompanyRepository,
     private roleService: RoleRepository,
+    private accountTokenService: AccountTokenRepository,
     private hashService: HashService,
     private imageUseCase: ImageService,
   ) {}
@@ -36,12 +37,16 @@ export class UserFactoryService {
     newUser.lastName = createUserDto.lastName;
 
     if (createUserDto.id_company) {
-      newUser.id_company = await this.companyHandler(createUserDto.id_company);
+      newUser.company = await this.companyHandler(createUserDto.id_company);
     }
 
-    newUser.role = createUserDto.id_role
-      ? await this.roleHandler('id', createUserDto.id_role)
-      : await this.roleHandler('name', 'guest');
+    if (createUserDto.id_role || createUserDto.role) {
+      if (createUserDto.role) {
+        newUser.role = await this.roleHandler('name', createUserDto.role);
+      }
+    } else {
+      newUser.role = await this.roleHandler('name', 'user');
+    }
 
     if (createUserDto.image) {
       newUser.image = await this.imageHandler(createUserDto.image);
@@ -52,13 +57,11 @@ export class UserFactoryService {
 
   async updateUser(updateUserDto: UpdateUserDto) {
     const updatedUser = new User();
+    let user = await this.userService.findById(updateUserDto.id);
 
     if (updateUserDto.email) {
-      const user = await this.userService.findByField(
-        'email',
-        updateUserDto.email,
-      );
-      if (user) {
+      user = await this.userService.findByField('email', updateUserDto.email);
+      if (user && user.id !== updateUserDto.id) {
         throw new Error('Email already exists');
       }
       updatedUser.email = updateUserDto.email;
@@ -73,13 +76,24 @@ export class UserFactoryService {
     }
 
     if (updateUserDto.image) {
-      updatedUser.image = await this.imageHandler(updateUserDto.image);
+      if (!user.image) {
+        //updatedUser.image = await this.imageHandler(updateUserDto.image);
+        const image = await this.imageHandler(updateUserDto.image);
+        updatedUser.id_image = image.id;
+      } else {
+        this.imageUseCase.remove(user.image.id);
+        //updatedUser.image = await this.imageHandler(updateUserDto.image);
+        const image = await this.imageHandler(updateUserDto.image);
+        updatedUser.id_image = image.id;
+      }
     }
 
     if (updateUserDto.id_company) {
       updatedUser.id_company = await this.companyHandler(
         updateUserDto.id_company,
-      );
+      ).then((company) => {
+        if (company) return company.id;
+      });
     }
 
     if (updateUserDto.id_role) {
@@ -94,29 +108,63 @@ export class UserFactoryService {
     return updatedUser;
   }
 
+  async findByRole(name: string) {
+    if (name == 'admin') {
+      throw new Error('You cannot list an admin');
+    }
+
+    const role = await this.roleService.findByField('name', name);
+
+    if (role) {
+      return await this.userService.findByRole(role.id);
+    }
+  }
+
   private async imageHandler(imageFile: Image): Promise<Image> {
     let postedImage = new Image();
-    console.log('entrou1');
+
     postedImage = await this.imageUseCase.create({
       imageFile: imageFile as unknown as File,
     });
+
     return postedImage;
   }
 
   private async companyHandler(companyId: string) {
-    console.log('entrou2');
     return await this.companyService.findById(companyId).then((company) => {
       if (!company) {
         throw new Error('Company doesn´t exists');
       }
-      return company.id;
+      return company;
     });
   }
 
   private async roleHandler(field: string, value: string) {
-    console.log('entrou3', field, value);
     return await this.roleService.findByField(field, value).then((role) => {
       return role;
     });
+  }
+
+  async createResetToken(user: User) {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    await this.prisma.account_Token.deleteMany({
+      where: { id_user: user.id },
+    });
+
+    const resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    const resetPasswordExpire = new Date(Date.now() + 10 * 60000);
+
+    await this.accountTokenService.create({
+      token: resetPasswordToken,
+      expires: resetPasswordExpire,
+      id_user: user.id,
+    });
+
+    return { resetToken, resetPasswordToken, resetPasswordExpire };
   }
 }

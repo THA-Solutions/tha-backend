@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../../core/dto';
 import { UserFactoryService } from './user-factory.service';
-import { IDataServices, IGenericRepository } from '../../core/abstracts';
 import * as crypto from 'crypto';
 import { MailService } from '../mail/mail.use-case';
 import { ConfigService } from '@nestjs/config';
-import { AccountToken, Image, User } from 'src/core/entities';
 import {
   AccountTokenRepository,
   ImageRepository,
   UserRepository,
 } from 'src/frameworks/data-services/database';
+import { User } from 'src/core/entities';
 
 @Injectable()
 export class UserService {
@@ -22,13 +21,20 @@ export class UserService {
     private mailService: MailService,
     private configService: ConfigService,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     const user = await this.userFactoryService.createNewUser(createUserDto);
 
-    return this.userService.create(user).then((user) => {
-      user.password = undefined;
-      return user;
-    });
+    try {
+      return this.userService.create(user).then((user) => {
+        user.password = undefined;
+        return user;
+      });
+    } catch (error) {
+      if (user.image) {
+        this.imageService.delete(user.image.id);
+      }
+    }
   }
 
   async findAll() {
@@ -43,6 +49,8 @@ export class UserService {
   async findOne(id: string) {
     const user = await this.userService.findById(id);
     user.password = undefined;
+
+    user.role.name = undefined;
 
     if (!user) {
       throw new Error('User doesn´t exists');
@@ -59,28 +67,41 @@ export class UserService {
     return await this.userService.findByField(field, value);
   }
 
+  async findByRole(role: string) {
+    const users = await this.userFactoryService.findByRole(role);
+    return users;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
-    console.log('updateUserDto', updateUserDto);
     const user = await this.userService.findById(id);
 
-    if (!user) {
-      throw new Error('User doesn´t exists');
+    const updateUser = await this.userFactoryService.updateUser({
+      ...updateUserDto,
+      id: id,
+    });
+
+    try {
+      if (!user) {
+        throw new Error('User doesn´t exists');
+      }
+
+      return await this.userService.update(id, updateUser);
+    } catch (error) {
+      if (updateUserDto.image) {
+        this.imageService.delete(updateUser.id_image);
+      }
     }
-
-    const updateUser = await this.userFactoryService.updateUser(updateUserDto);
-
-    return await this.userService.update(id, updateUser);
   }
 
   async remove(id: string) {
-    const user = await this.userService.findByField('id', id);
+    const user = await this.findOne(id);
 
     if (!user) {
       throw new Error('User doesn´t exists');
     }
 
-    if (user.id_image) {
-      await this.imageService.delete(user.id_image);
+    if (user.image) {
+      await this.imageService.delete(user.image.id);
     }
 
     return this.userService.delete(id);
@@ -95,7 +116,7 @@ export class UserService {
 
     const resetToken = await this.createResetToken(user);
 
-    const resetUrl = `http://localhost:4200/recuperar-senha/${resetToken.resetToken}`;
+    const resetUrl = `${this.configService.get<string>('PAGES_URL')}/recuperar-senha/${resetToken.resetToken}`;
 
     const message = `
       <div style="text-align: center; color: #ffffff; background-color: #242130;">
@@ -123,15 +144,17 @@ export class UserService {
       </div>
     `;
 
-    //this.mailService.passResetMail({
-    //  email,
-    //  subject: '',
-    //  message: message,
-    //});
+    this.mailService.passResetMail({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email,
+      subject: '',
+      message: message,
+    });
 
     return;
   }
-
+  //TO-DO \/
   async resetPassword(resetToken: string, password: string) {
     const resetPasswordToken = crypto
       .createHash('sha256')
@@ -156,7 +179,6 @@ export class UserService {
     const newPassword = this.crypter(password);
 
     await this.userService.update(user.id, {
-      ...user,
       password: newPassword,
     });
 
@@ -165,29 +187,10 @@ export class UserService {
     return;
   }
 
-  async createResetToken(user: any) {
-    const resetToken = crypto.randomBytes(32).toString('hex');
+  async createResetToken(user: User) {
+    const resetToken = this.userFactoryService.createResetToken(user);
 
-    //await this.prisma.account_Token.deleteMany({
-    //  where: { id_user: user.id },
-    //});
-
-    const resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
-
-    const resetPasswordExpire = new Date(Date.now() + 10 * 60000);
-
-    //await this.prisma.account_Token.create({
-    //  data: {
-    //    token: resetPasswordToken,
-    //    expires: resetPasswordExpire,
-    //    User: { connect: { id: user.id } },
-    //  },
-    //});
-
-    return { resetToken, resetPasswordToken, resetPasswordExpire };
+    return resetToken;
   }
 
   crypter(password: string) {

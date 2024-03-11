@@ -1,14 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { TeamFactoryService } from './team-factory.service';
-import { IDataServices, IGenericRepository } from 'src/core/abstracts';
 import { CreateTeamDto, UpdateTeamDto } from 'src/core/dto';
-import { Team } from 'src/core/entities';
+
+import {
+  ImageRepository,
+  TeamRepository,
+} from 'src/frameworks/data-services/database';
 
 @Injectable()
 export class TeamService {
   constructor(
     private teamFactoryService: TeamFactoryService,
-    private dataService: IGenericRepository<Team>,
+    private dataService: TeamRepository,
+    private imageService: ImageRepository,
   ) {}
 
   async create(createTeamDto: CreateTeamDto) {
@@ -26,11 +30,24 @@ export class TeamService {
   }
 
   async update(id: string, updateTeamDto: UpdateTeamDto) {
-    const updateTeam = await this.teamFactoryService.updateTeam(updateTeamDto);
+    const updateTeam = await this.teamFactoryService.updateTeam({
+      id: id,
+      ...updateTeamDto,
+    });
+
     return this.dataService.update(id, updateTeam);
   }
 
   async remove(id: string) {
+    const team = await this.dataService.findById(id);
+
+    if (!team) {
+      throw new Error('Team doesn´t exists');
+    }
+
+    if (team.image) {
+      await this.imageService.delete(team.image.id);
+    }
     return this.dataService.delete(id);
   }
 }
