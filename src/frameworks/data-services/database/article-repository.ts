@@ -45,9 +45,13 @@ export class ArticleRepository implements IGenericRepository<Article> {
   }
 
   async update(id: string, data: Article): Promise<Article> {
+    let updateData = data.category
+      ? { ...data, category: { connect: { id: data.category.id } } }
+      : data;
+
     return await this.prismaService.article.update({
       where: { id },
-      data,
+      data: updateData,
     } as any);
   }
 

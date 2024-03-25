@@ -61,11 +61,14 @@ export class ArticleController {
     @Body() updateArticleDto: UpdateArticleDto,
     @UploadedFiles() imageFile?: Image[],
   ) {
-    const images = updateArticleDto.image
-      ? updateArticleDto.image.map((img) => {
-          return JSON.parse(img as any) as Image;
-        })
-      : null;
+    let images;
+    if (Array.isArray(updateArticleDto.image)) {
+      images = JSON.parse(updateArticleDto.image as any).map((img) => {
+        return img as Image;
+      });
+    } else {
+      images = JSON.parse(updateArticleDto.image as any);
+    }
 
     return this.articleService.update(id, {
       ...updateArticleDto,

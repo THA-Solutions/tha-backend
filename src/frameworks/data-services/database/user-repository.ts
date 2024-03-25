@@ -67,7 +67,7 @@ export class UserRepository implements IGenericRepository<User> {
     param: string,
     value: string | number | boolean,
   ): Promise<User> {
-    return await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       where: { [param]: value },
       include: {
         image: true,
@@ -79,6 +79,8 @@ export class UserRepository implements IGenericRepository<User> {
         },
       },
     });
+
+    return user;
   }
 
   async findByRole(role: string): Promise<User[]> {

@@ -45,23 +45,42 @@ export class ArticleService {
   async update(id: string, updateArticleDto: UpdateArticleDto) {
     const { image, ...article } =
       await this.articleFactoryService.updateArticle(updateArticleDto);
-
+    
     if (image) {
-      const imageUrls = image.map((img) => img.url);
+      let imageUrls = [];
+      if (Array.isArray(image)) {
+        imageUrls = image.map((img) => img.url);
 
-      await this.imageService.deleteArticleOffSetImages(id, imageUrls);
+        await this.imageService.deleteArticleOffSetImages(id, imageUrls);
+        //
+        for (let i = 0; i < image.length; i++) {
+          const existsImage = await this.imageService.findByField(
+            'url',
+            image[i].url,
+          );
+          console.log(existsImage);
+          await this.imageService.update(existsImage.id, {
+            ...image[i],
+            pos: i,
+            id_article: id,
+          });
+        }
+      } else {
+        if ((image as Image).url) {
+          await this.imageService.deleteArticleOffSetImages(id, [
+            (image as Image).url,
+          ]);
 
-      for (let i = 0; i < image.length; i++) {
-        const existsImage = await this.imageService.findByField(
-          'url',
-          image[i].url,
-        );
+          const existsImage = await this.imageService.findByField(
+            'url',
+            (image as Image).url,
+          );
 
-        await this.imageService.update(existsImage.id, {
-          ...image[i],
-          pos: i,
-          id_article: id,
-        });
+          await this.imageService.update(existsImage.id, {
+            ...(image as Image),
+            id_article: id,
+          });
+        }
       }
     }
 

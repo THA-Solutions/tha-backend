@@ -18,16 +18,15 @@ export class ArticleFactoryService {
 
   async createNewArticle(createArticleDto: CreateArticleDto) {
     const newArticle = new Article();
-
     newArticle.title = createArticleDto.title;
 
     newArticle.subTitle = createArticleDto.subTitle;
 
     newArticle.content = createArticleDto.content;
 
-    //newArticle.category = await this.categoryHandler(
-    //  createArticleDto.category as unknown as string,
-    //);
+    newArticle.category = await this.categoryHandler(
+      createArticleDto.category as unknown as string,
+    );
 
     newArticle.author = createArticleDto.author;
 
@@ -40,7 +39,6 @@ export class ArticleFactoryService {
 
   async updateArticle(updateArticleDto: UpdateArticleDto) {
     const updatedArticle = new Article();
-
     if (updateArticleDto) {
       updatedArticle.title = updateArticleDto.title;
     }
@@ -53,11 +51,11 @@ export class ArticleFactoryService {
       updatedArticle.content = updateArticleDto.content;
     }
 
-    //if (updateArticleDto.category) {
-    //  updatedArticle.category = await this.categoryHandler(
-    //    updateArticleDto.category as unknown as string,
-    //  );
-    //}
+    if (updateArticleDto.category) {
+      updatedArticle.category = await this.categoryHandler(
+        updateArticleDto.category as unknown as string,
+      );
+    }
 
     if (updateArticleDto.author) {
       updatedArticle.author = updateArticleDto.author;
@@ -70,10 +68,22 @@ export class ArticleFactoryService {
     return updatedArticle;
   }
 
-  async categoryHandler(id: string) {
-    const category = await this.categoryService.findById(id);
+  async categoryHandler(name: string) {
+    const category = await this.categoryService.findByField('name', name);
+
+    const defaultCategory = {
+      Tecnologia: 'Tecnologia',
+      Solar: 'Solar',
+      Curiosidades: 'Curiosidades',
+      Outros: 'Outros',
+    };
 
     if (!category) {
+      if (defaultCategory[name]) {
+        return this.categoryService.create({
+          name: defaultCategory[name],
+        });
+      }
       throw new Error('Category not found');
     }
 

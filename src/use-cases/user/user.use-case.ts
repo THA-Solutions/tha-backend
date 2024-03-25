@@ -50,8 +50,6 @@ export class UserService {
     const user = await this.userService.findById(id);
     user.password = undefined;
 
-    user.role.name = undefined;
-
     if (!user) {
       throw new Error('User doesn´t exists');
     }

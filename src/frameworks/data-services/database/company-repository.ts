@@ -57,12 +57,18 @@ export class CompanyRepository implements IGenericRepository<Company> {
   ): Promise<Company> {
     return (await this.prismaService.company.findFirst({
       where: { [param]: value },
+      include: {
+        image: true,
+      },
     })) as Company;
   }
 
   async findById(id: string): Promise<Company> {
     return (await this.prismaService.company.findUnique({
       where: { id },
+      include: {
+        image: true,
+      },
     })) as Company;
   }
 }

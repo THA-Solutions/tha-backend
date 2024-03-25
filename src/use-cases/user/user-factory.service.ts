@@ -77,12 +77,10 @@ export class UserFactoryService {
 
     if (updateUserDto.image) {
       if (!user.image) {
-        //updatedUser.image = await this.imageHandler(updateUserDto.image);
         const image = await this.imageHandler(updateUserDto.image);
         updatedUser.id_image = image.id;
       } else {
         this.imageUseCase.remove(user.image.id);
-        //updatedUser.image = await this.imageHandler(updateUserDto.image);
         const image = await this.imageHandler(updateUserDto.image);
         updatedUser.id_image = image.id;
       }
@@ -115,9 +113,12 @@ export class UserFactoryService {
 
     const role = await this.roleService.findByField('name', name);
 
+
+
     if (role) {
       return await this.userService.findByRole(role.id);
-    }
+    } 
+
   }
 
   private async imageHandler(imageFile: Image): Promise<Image> {
@@ -140,9 +141,26 @@ export class UserFactoryService {
   }
 
   private async roleHandler(field: string, value: string) {
-    return await this.roleService.findByField(field, value).then((role) => {
-      return role;
-    });
+            const defaultRoles = {
+              Supplier: 'Supplier',
+              Customer: 'Customer',
+              Integrator: 'Integrator',
+              User: 'User',
+            };
+
+            return await this.roleService
+              .findByField(field, value)
+              .then((role) => {
+                if (!role) {
+                  if (defaultRoles[value]) {
+                    return this.roleService.create({
+                      name: defaultRoles[value],
+                    } as any);
+                  }
+                  throw new Error('Role not found');
+                }
+                return role;
+              });
   }
 
   async createResetToken(user: User) {

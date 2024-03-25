@@ -35,7 +35,6 @@ export class AuthService {
     if (pass !== this.decrypter(user.password)) {
       throw new UnauthorizedException('Senha inválida');
     }
-
     return user;
   }
 }
