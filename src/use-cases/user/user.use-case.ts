@@ -114,7 +114,7 @@ export class UserService {
 
     const resetToken = await this.createResetToken(user);
 
-    const resetUrl = `${this.configService.get<string>('PAGES_URL')}/recuperar-senha/${resetToken.resetToken}`;
+    const resetUrl = `${this.configService.get<string>('PAGES_URL')}/recovery-password/${resetToken.resetToken}`;
 
     const message = `
       <div style="text-align: center; color: #ffffff; background-color: #242130;">
