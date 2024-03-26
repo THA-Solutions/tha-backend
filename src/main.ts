@@ -8,6 +8,6 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
-  await app.listen(3001);
+  await app.listen(process.env.CRYPTO_SECRET || 3001);
 }
 bootstrap();
