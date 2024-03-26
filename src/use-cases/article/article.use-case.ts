@@ -58,7 +58,7 @@ export class ArticleService {
             'url',
             image[i].url,
           );
-          console.log(existsImage);
+          
           await this.imageService.update(existsImage.id, {
             ...image[i] as any,
             pos: i,
