@@ -44,4 +44,11 @@ export class RoleService {
     const role = await this.roleRepository.findById(id);
     return role;
   }
+
+  async create(data) {
+    const role = await this.roleRepository.create(data);
+
+    return role;
+  }
+  
 }

@@ -13,6 +13,14 @@ export class TokenDto {
 
 @Injectable()
 export class RoleGuard implements CanActivate {
+
+  private defaultRoles = {
+              Supplier: 'Supplier',
+              Customer: 'Customer',
+              Integrator: 'Integrator',
+              User: 'User',
+  };
+
   constructor(
     private reflector: Reflector,
     private roleService: RoleService,
@@ -42,7 +50,17 @@ export class RoleGuard implements CanActivate {
 
     const role =
       roleToken != 'null'
-        ? await this.roleService.findById(roleToken).then((role) => {
+        ? await this.roleService.findById(roleToken).then(async (role) => {
+          if (!role) {
+            if (this.defaultRoles[roleToken]) {
+              return await this.roleService.create({
+                name: this.defaultRoles[roleToken],
+              } as any);
+            }
+            else {
+              return Role.GUEST
+            }
+          }
             return role.name;
           })
         : 'guest';
