@@ -22,7 +22,7 @@ export class ImageFactoryService {
 
     if (createImageDto.imageFile) {
       newImage.url = await this.uploadImageService.uploadImage(
-        createImageDto.imageFile,
+        createImageDto.imageFile as any,
       );
     } else {
       newImage.url = createImageDto.url;
@@ -52,7 +52,7 @@ export class ImageFactoryService {
 
     if (updateImageDto.imageFile) {
       updatedImage.url = await this.uploadImageService.uploadImage(
-        updateImageDto.imageFile,
+        updateImageDto.imageFile as any,
       );
     } else {
       updatedImage.url = updateImageDto.url;

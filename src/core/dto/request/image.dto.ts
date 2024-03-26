@@ -1,5 +1,7 @@
+import { Image } from "src/core/entities";
+
 export class CreateImageDto {
-  imageFile?: File;
+  imageFile?: Image;
 
   source?: string;
 

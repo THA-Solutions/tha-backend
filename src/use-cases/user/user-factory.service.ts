@@ -125,7 +125,7 @@ export class UserFactoryService {
     let postedImage = new Image();
 
     postedImage = await this.imageUseCase.create({
-      imageFile: imageFile as unknown as File,
+      imageFile: imageFile as unknown as Image,
     });
 
     return postedImage;

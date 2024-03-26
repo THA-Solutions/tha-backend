@@ -25,7 +25,7 @@ export class ArticleService {
         await this.imageService.create({
           ...image[i],
           pos: i,
-          imageFile: image[i].imageFile,
+          imageFile: image[i].imageFile as Image,
           id_article: createdArticle.id,
         });
       }
@@ -60,7 +60,7 @@ export class ArticleService {
           );
           console.log(existsImage);
           await this.imageService.update(existsImage.id, {
-            ...image[i],
+            ...image[i] as any,
             pos: i,
             id_article: id,
           });
@@ -77,7 +77,7 @@ export class ArticleService {
           );
 
           await this.imageService.update(existsImage.id, {
-            ...(image as Image),
+            ...(image as any),
             id_article: id,
           });
         }

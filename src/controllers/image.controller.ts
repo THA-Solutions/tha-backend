@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateImageDto, UpdateImageDto } from 'src/core/dto';
+import { Image } from 'src/core/entities';
 import { ImageService } from 'src/use-cases/image/image.use-case';
 
 @Controller('image')
@@ -21,11 +22,11 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('imageFile'))
   create(
     @Body() createImageDto: CreateImageDto,
-    @UploadedFile() imageFile: File,
+    @UploadedFile() imageFile: Express.Multer.File,
   ) {
     return this.imageService.create({
       ...createImageDto,
-      imageFile: imageFile,
+      imageFile: imageFile as unknown as Image,
     });
   }
 
@@ -44,21 +45,12 @@ export class ImageController {
   update(
     @Param('id') id: string,
     @Body() updateImageDto: UpdateImageDto,
-    @UploadedFile() imageFile?: File,
+    @UploadedFile() imageFile?: Express.Multer.File,
   ) {
     return this.imageService.update(id, {
       ...updateImageDto,
-      imageFile: imageFile,
+      imageFile: imageFile as unknown as Image, 
     });
-  }
-
-  @Patch('origin/:id')
-  @UseInterceptors(FileInterceptor('imageFile'))
-  updateByOrigin(
-    @Body() updateImageDto: UpdateImageDto,
-    @UploadedFile() imageFile: File,
-  ) {
-    return; //this.imageService.updateByOrigin(updateImageDto, imageFile);
   }
 
   @Delete(':id')
