@@ -55,7 +55,9 @@ export class RoleGuard implements CanActivate {
             if (this.defaultRoles[roleToken]) {
               return await this.roleService.create({
                 name: this.defaultRoles[roleToken],
-              } as any);
+              } as any).then((role) => {
+                return role.name;
+              })
             }
             else {
               return Role.GUEST
