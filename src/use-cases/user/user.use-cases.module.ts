@@ -5,7 +5,7 @@ import { UserFactoryService } from './user-factory.service';
 import { PrismaModule } from 'src/frameworks/data-services/database/prisma.module';
 import { HashService } from '../auth/hash-repository';
 import { ImageUseCasesModule } from '../image/image.use-cases.module';
-import { MailUseCasesModule } from '../mail/mail.use-cases.module';
+//import { MailUseCasesModule } from '../mail/mail.use-cases.module';
 import { ConfigService } from '@nestjs/config';
 import {
   AccountTokenRepository,
@@ -19,8 +19,8 @@ import {
   imports: [
     PrismaModule,
     ImageUseCasesModule,
-    MailUseCasesModule,
-    MailUseCasesModule,
+    //MailUseCasesModule,
+    //MailUseCasesModule,
   ],
   controllers: [UserController],
   providers: [

@@ -7,7 +7,6 @@ async function bootstrap() {
 
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-
   await app.listen(process.env.PORT || 3001);
 }
 bootstrap();

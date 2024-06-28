@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from '../../core/dto';
 import { UserFactoryService } from './user-factory.service';
 import * as crypto from 'crypto';
-import { MailService } from '../mail/mail.use-case';
+//import { MailService } from '../mail/mail.use-case';
 import { ConfigService } from '@nestjs/config';
 import {
   AccountTokenRepository,
@@ -18,7 +18,7 @@ export class UserService {
     private userService: UserRepository,
     private imageService: ImageRepository,
     private accountTokenService: AccountTokenRepository,
-    private mailService: MailService,
+    //private mailService: MailService,
     private configService: ConfigService,
   ) {}
 
@@ -142,13 +142,13 @@ export class UserService {
       </div>
     `;
 
-    this.mailService.passResetMail({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email,
-      subject: '',
-      message: message,
-    });
+    //this.mailService.passResetMail({
+    //  firstName: user.firstName,
+    //  lastName: user.lastName,
+    //  email,
+    //  subject: '',
+    //  message: message,
+    //});
 
     return;
   }

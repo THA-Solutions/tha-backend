@@ -47,9 +47,8 @@ export class RoleGuard implements CanActivate {
     let request = context.switchToHttp().getRequest();
 
     let roleToken = this.extractTokenFromHeader(request);
-
     const role =
-      roleToken != 'null'
+      roleToken != 'null' && roleToken && roleToken != 'guest'
         ? await this.roleService.findById(roleToken).then(async (role) => {
           if (!role) {
             if (this.defaultRoles[roleToken]) {
@@ -74,18 +73,18 @@ export class RoleGuard implements CanActivate {
     if (!hasRole) {
       return false;
     }
-
+    
     for (const requiredRole of requiredRoles) {
       const result = this.roleService.isAuthorized({
         currentRole: (role as Role) || Role.GUEST,
         requiredRole: requiredRole,
       });
 
+
       if (result) {
         return true;
       }
     }
-
     return false;
   }
 

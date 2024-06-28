@@ -23,7 +23,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.GUEST)
+  @Roles(Role.GUEST, Role.ADMIN)
   @UseInterceptors(FileInterceptor('imageFile'))
   create(
     @Body() createUserDto: CreateUserDto,
