@@ -81,7 +81,7 @@ export class UserController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('imageFile'))
-  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.DISTRIBUTOR, Role.INTEGRATOR)
   update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -98,7 +98,7 @@ export class UserController {
   }
 
   @Post('recovery-password')
-  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.DISTRIBUTOR, Role.INTEGRATOR)
   recoveryPassword(@Body() body: { email: string }, @Req() req: Request) {
     try {
       return this.userService.forgotPassword(body.email, req);
@@ -108,7 +108,7 @@ export class UserController {
   }
 
   @Post('reset-password')
-  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.DISTRIBUTOR, Role.INTEGRATOR)
   resetPassword(@Body() body: { token: string; password: string }) {
     try {
       return this.userService.resetPassword(body.token, body.password);
@@ -118,7 +118,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.USER, Role.CUSTOMER, Role.ADMIN, Role.DISTRIBUTOR, Role.INTEGRATOR)
   remove(@Param('id') id: string) {
     try {
       return this.userService.remove(id);

@@ -23,9 +23,9 @@ export class ReviewFactoryService {
 
     newReview.value = createReviewDto.value;
 
-    newReview.id_user = await this.userHandler(createReviewDto.id_user);
+    newReview.id_user = await this.findUserById(createReviewDto.id_user);
 
-    newReview.id_inverter = await this.inverterHandler(
+    newReview.id_inverter = await this.findInverterById(
       createReviewDto.id_inverter,
     );
 
@@ -45,7 +45,7 @@ export class ReviewFactoryService {
     return updatedReview;
   }
 
-  async userHandler(id: string) {
+  async findUserById(id: string) {
     const user = await this.userService.findById(id);
     if (!user) {
       throw new Error('User not found');
@@ -53,7 +53,7 @@ export class ReviewFactoryService {
     return user.id;
   }
 
-  async inverterHandler(id: string) {
+  async findInverterById(id: string) {
     const inverter = await this.inverterService.findById(id);
     if (!inverter) {
       throw new Error('Inverter not found');

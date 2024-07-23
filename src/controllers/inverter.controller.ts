@@ -23,7 +23,7 @@ export class InverterController {
 
   @Post()
   @UseInterceptors(FileInterceptor('imageFile'))
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   create(
     @Body() createInverterDto: CreateInverterDto,
     @UploadedFile() imageFile: Express.Multer.File,
@@ -70,7 +70,7 @@ export class InverterController {
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('imageFile'))
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   update(
     @Param('id') id: string,
     @Body() updateInverterDto: UpdateInverterDto,
@@ -87,7 +87,7 @@ export class InverterController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   remove(@Param('id') id: string) {
     try {
       return this.inverterService.remove(id);

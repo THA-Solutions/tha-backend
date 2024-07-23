@@ -18,7 +18,7 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post()
-  @Roles(Role.CUSTOMER, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.CUSTOMER, Role.DISTRIBUTOR, Role.INTEGRATOR)
   create(@Body() createReviewDto: CreateReviewDto) {
     return this.reviewService.create(createReviewDto);
   }
@@ -36,13 +36,13 @@ export class ReviewController {
   }
 
   @Patch(':id')
-  @Roles(Role.CUSTOMER, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.CUSTOMER, Role.DISTRIBUTOR, Role.INTEGRATOR)
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
     return this.reviewService.update(id, updateReviewDto);
   }
 
   @Delete(':id')
-  @Roles(Role.CUSTOMER, Role.SUPPLIER, Role.INTEGRATOR)
+  @Roles(Role.CUSTOMER, Role.DISTRIBUTOR, Role.INTEGRATOR)
   remove(@Param('id') id: string) {
     return this.reviewService.remove(id);
   }

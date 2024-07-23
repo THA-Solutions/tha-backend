@@ -20,7 +20,7 @@ export class CategoryFactoryService {
   async updateCategory(updateCategoryDto: UpdateCategoryDto) {
     const updatedCategory = new Category();
 
-    this.categoryHandler('name', updateCategoryDto.name);
+    this.findCategoryByField('name', updateCategoryDto.name);
 
     if (updateCategoryDto.name) {
       updatedCategory.name = updateCategoryDto.name;
@@ -33,7 +33,7 @@ export class CategoryFactoryService {
     return updatedCategory;
   }
 
-  private async categoryHandler(field: string, value: string) {
+  private async findCategoryByField(field: string, value: string) {
     const category = this.categoryService.findByField(field, value);
     return category;
   }

@@ -47,6 +47,9 @@ export class RoleGuard implements CanActivate {
     let request = context.switchToHttp().getRequest();
 
     let roleToken = this.extractTokenFromHeader(request);
+
+    console.log(roleToken);
+
     const role =
       roleToken != 'null' && roleToken && roleToken != 'guest'
         ? await this.roleService.findById(roleToken).then(async (role) => {
@@ -66,11 +69,13 @@ export class RoleGuard implements CanActivate {
           })
         : 'guest';
 
+    console.log(requiredRoles,role)
     const hasRole = requiredRoles.some((reqRole) =>
       reqRole.includes(role as Role),
     );
 
     if (!hasRole) {
+      console.log('n',hasRole)
       return false;
     }
     
@@ -79,9 +84,10 @@ export class RoleGuard implements CanActivate {
         currentRole: (role as Role) || Role.GUEST,
         requiredRole: requiredRole,
       });
-
+      console.log(result)
 
       if (result) {
+        console.log('1')
         return true;
       }
     }

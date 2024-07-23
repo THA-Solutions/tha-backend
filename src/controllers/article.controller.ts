@@ -23,7 +23,7 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Post()
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   @UseInterceptors(FilesInterceptor('imageFile'))
   create(
     @Body() createArticleDto: CreateArticleDto,
@@ -53,7 +53,7 @@ export class ArticleController {
     return this.articleService.findOne(id);
   }
 
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('imageFile'))
   update(
@@ -77,7 +77,7 @@ export class ArticleController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.SUPPLIER)
+  @Roles(Role.ADMIN, Role.DISTRIBUTOR)
   remove(@Param('id') id: string) {
     return this.articleService.remove(id);
   }

@@ -18,7 +18,7 @@ export class InverterFactoryService {
   async createNewInverter(createInverterDto: CreateInverterDto) {
     const newInverter = new Inverter();
 
-    newInverter.company = await this.companyHandler(
+    newInverter.company = await this.findCompanyById(
       createInverterDto.id_company,
     );
 
@@ -60,7 +60,7 @@ export class InverterFactoryService {
     newInverter.weight = createInverterDto.weight;
 
     if (createInverterDto.image) {
-      newInverter.image = await this.imageHandler(createInverterDto.image);
+      newInverter.image = await this.createNewImage(createInverterDto.image);
     }
 
     return newInverter;
@@ -165,19 +165,19 @@ export class InverterFactoryService {
     }
 
     if (updateInverterDto.id_company) {
-      updatedInverter.company = await this.companyHandler(
+      updatedInverter.company = await this.findCompanyById(
         updateInverterDto.id_company,
       );
     }
 
     if (updateInverterDto.image) {
       if (!inverter.image) {
-        updatedInverter.image = await this.imageHandler(
+        updatedInverter.image = await this.createNewImage(
           updateInverterDto.image,
         );
       } else {
         this.imageUseCase.remove(inverter.image.id);
-        updatedInverter.image = await this.imageHandler(
+        updatedInverter.image = await this.createNewImage(
           updateInverterDto.image,
         );
       }
@@ -186,7 +186,7 @@ export class InverterFactoryService {
     return updatedInverter;
   }
 
-  private async companyHandler(companyId: string) {
+  private async findCompanyById(companyId: string) {
     return await this.companyService.findById(companyId).then((company) => {
       if (!company) {
         throw new Error('Company doesn´t exists');
@@ -195,7 +195,7 @@ export class InverterFactoryService {
     });
   }
 
-  private async imageHandler(imageFile: Image): Promise<Image> {
+  private async createNewImage(imageFile: Image): Promise<Image> {
     let postedImage = new Image();
 
     postedImage = await this.imageUseCase.create({

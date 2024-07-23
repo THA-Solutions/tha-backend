@@ -37,19 +37,19 @@ export class UserFactoryService {
     newUser.lastName = createUserDto.lastName;
 
     if (createUserDto.id_company) {
-      newUser.company = await this.companyHandler(createUserDto.id_company);
+      newUser.company = await this.findCompanyById(createUserDto.id_company);
     }
 
     if (createUserDto.id_role || createUserDto.role) {
       if (createUserDto.role) {
-        newUser.role = await this.roleHandler('name', createUserDto.role);
+        newUser.role = await this.findRoleByFieldOrCreate('name', createUserDto.role);
       }
     } else {
-      newUser.role = await this.roleHandler('name', 'user');
+      newUser.role = await this.findRoleByFieldOrCreate('name', 'user');
     }
 
     if (createUserDto.image) {
-      newUser.image = await this.imageHandler(createUserDto.image);
+      newUser.image = await this.createImage(createUserDto.image);
     }
 
     return newUser;
@@ -77,17 +77,17 @@ export class UserFactoryService {
 
     if (updateUserDto.image) {
       if (!user.image) {
-        const image = await this.imageHandler(updateUserDto.image);
+        const image = await this.createImage(updateUserDto.image);
         updatedUser.id_image = image.id;
       } else {
         this.imageUseCase.remove(user.image.id);
-        const image = await this.imageHandler(updateUserDto.image);
+        const image = await this.createImage(updateUserDto.image);
         updatedUser.id_image = image.id;
       }
     }
 
     if (updateUserDto.id_company) {
-      updatedUser.id_company = await this.companyHandler(
+      updatedUser.id_company = await this.findCompanyById(
         updateUserDto.id_company,
       ).then((company) => {
         if (company) return company.id;
@@ -95,7 +95,7 @@ export class UserFactoryService {
     }
 
     if (updateUserDto.id_role) {
-      updatedUser.id_role = await this.roleHandler(
+      updatedUser.id_role = await this.findRoleByFieldOrCreate(
         'id',
         updateUserDto.id_role,
       ).then((role) => {
@@ -113,15 +113,13 @@ export class UserFactoryService {
 
     const role = await this.roleService.findByField('name', name);
 
-
-
     if (role) {
       return await this.userService.findByRole(role.id);
     } 
 
   }
 
-  private async imageHandler(imageFile: Image): Promise<Image> {
+  private async createImage(imageFile: Image): Promise<Image> {
     let postedImage = new Image();
 
     postedImage = await this.imageUseCase.create({
@@ -131,7 +129,7 @@ export class UserFactoryService {
     return postedImage;
   }
 
-  private async companyHandler(companyId: string) {
+  private async findCompanyById(companyId: string) {
     return await this.companyService.findById(companyId).then((company) => {
       if (!company) {
         throw new Error('Company doesn´t exists');
@@ -140,7 +138,7 @@ export class UserFactoryService {
     });
   }
 
-  private async roleHandler(field: string, value: string) {
+  private async findRoleByFieldOrCreate(field: string, value: string) {
             const defaultRoles = {
               Supplier: 'Supplier',
               Customer: 'Customer',

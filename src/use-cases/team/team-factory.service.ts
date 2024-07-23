@@ -28,7 +28,7 @@ export class TeamFactoryService {
     newTeam.role = createTeamDto.role;
 
     if (createTeamDto.image) {
-      newTeam.image = await this.imageHandler(createTeamDto.image);
+      newTeam.image = await this.createImage(createTeamDto.image);
     }
 
     return newTeam;
@@ -65,17 +65,17 @@ export class TeamFactoryService {
 
     if (updateTeamDto.image) {
       if (!team.image) {
-        updatedTeam.image = await this.imageHandler(updateTeamDto.image);
+        updatedTeam.image = await this.createImage(updateTeamDto.image);
       }
 
       await this.imageUseCase.remove(team.image.id);
-      updatedTeam.image = await this.imageHandler(updateTeamDto.image);
+      updatedTeam.image = await this.createImage(updateTeamDto.image);
     }
 
     return updatedTeam;
   }
 
-  private async imageHandler(imageFile: Image): Promise<Image> {
+  private async createImage(imageFile: Image): Promise<Image> {
     let postedImage = new Image();
 
     postedImage = await this.imageUseCase.create({

@@ -41,7 +41,7 @@ export class CompanyFactoryService {
     newCompany.neighborhood = createCompanyDto.neighborhood;
 
     if (createCompanyDto.image) {
-      newCompany.image = await this.imageHandler(createCompanyDto.image);
+      newCompany.image = await this.createImage(createCompanyDto.image);
     }
 
     return newCompany;
@@ -98,17 +98,17 @@ export class CompanyFactoryService {
 
     if (update.image) {
       if (!company.image) {
-        updatedCompany.image = await this.imageHandler(update.image);
+        updatedCompany.image = await this.createImage(update.image);
       } else {
         this.imageUseCase.remove(company.image.id);
-        updatedCompany.image = await this.imageHandler(update.image);
+        updatedCompany.image = await this.createImage(update.image);
       }
     }
 
     return updatedCompany;
   }
 
-  private async imageHandler(imageFile: Image): Promise<Image> {
+  private async createImage(imageFile: Image): Promise<Image> {
     let postedImage = new Image();
 
     postedImage = await this.imageUseCase.create({

@@ -17,7 +17,7 @@ export class RoleService {
       Role.GUEST,
       Role.USER,
       Role.CUSTOMER,
-      Role.SUPPLIER,
+      Role.DISTRIBUTOR,
       Role.INTEGRATOR,
       Role.ADMIN,
     ]);

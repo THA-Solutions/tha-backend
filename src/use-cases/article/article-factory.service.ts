@@ -24,7 +24,7 @@ export class ArticleFactoryService {
 
     newArticle.content = createArticleDto.content;
 
-    newArticle.category = await this.categoryHandler(
+    newArticle.category = await this.findCategoryByField(
       createArticleDto.category as unknown as string,
     );
 
@@ -52,7 +52,7 @@ export class ArticleFactoryService {
     }
 
     if (updateArticleDto.category) {
-      updatedArticle.category = await this.categoryHandler(
+      updatedArticle.category = await this.findCategoryByField(
         updateArticleDto.category as unknown as string,
       );
     }
@@ -68,7 +68,7 @@ export class ArticleFactoryService {
     return updatedArticle;
   }
 
-  async categoryHandler(name: string) {
+  async findCategoryByField(name: string) {
     const category = await this.categoryService.findByField('name', name);
 
     const defaultCategory = {
