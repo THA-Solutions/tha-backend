@@ -69,10 +69,14 @@ export class ImageFactoryService {
 
     if (Array.isArray(urls)) {
       for (let i = 0; i < urls['length']; i++) {
+        console.log('111111')
         const id = urls[i].match(regex)![0];
         await this.uploadImageService.deleteImage(id);
       }
     } else {
+      console.log(regex)
+      console.log('222222')
+      console.log(urls)
       const id = urls.match(regex)![0];
       await this.uploadImageService.deleteImage(id);
     }

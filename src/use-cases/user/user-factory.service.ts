@@ -78,10 +78,12 @@ export class UserFactoryService {
     if (updateUserDto.image) {
       if (!user.image) {
         const image = await this.createImage(updateUserDto.image);
+        updatedUser.image = image;
         updatedUser.id_image = image.id;
       } else {
         this.imageUseCase.remove(user.image.id);
         const image = await this.createImage(updateUserDto.image);
+        updatedUser.image = image;
         updatedUser.id_image = image.id;
       }
     }
