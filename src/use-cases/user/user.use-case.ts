@@ -77,13 +77,17 @@ export class UserService {
       ...updateUserDto,
       id: id,
     });
+    
+    const image = updateUser.image ? updateUser.image : null;
+
+    delete updateUser.image;
 
     try {
       if (!user) {
         throw new Error('User doesn´t exists');
       }
-
-      return await this.userService.update(id, updateUser);
+      const updatedUser = await this.userService.update(id, updateUser);
+      return {...updatedUser,image: image}
     } catch (error) {
       if (updateUserDto.image) {
         this.imageService.delete(updateUser.id_image);
